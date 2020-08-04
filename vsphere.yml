@@ -1,0 +1,69 @@
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: create Datacenter
+    delegate_to: localhost
+    vmware_datacenter:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      datacenter_name: "{{ myvmdcname }}"
+      validate_certs: false
+      state: present
+  - name: create Cluster
+    delegate_to: localhost
+    vmware_cluster:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      datacenter_name: "{{ myvmdcname }}"
+      cluster_name: "{{ myvmclname }}"
+      validate_certs: false
+      state: present
+  - name: Add ESXi Host 1 to vCenter
+    delegate_to: localhost
+    vmware_host:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      datacenter: "{{ myvmdcname }}"
+      cluster: "{{ myvmclname }}"
+      esxi_hostname: "esx01.fsimonetti.lan"
+      esxi_username: '{{ esxi_username }}'
+      esxi_password: '{{ esxi_password }}'
+      validate_certs: false
+      state: present
+  - name: Add ESXi license to host 1
+    delegate_to: localhost
+    vcenter_license:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      esxi_hostname: "esx01.fsimonetti.lan"
+      license: '{{ esxi_license }}'
+      validate_certs: false
+      state: present      
+  - name: Add ESXi Host 2 to vCenter
+    delegate_to: localhost
+    vmware_host:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      datacenter: "{{ myvmdcname }}"
+      cluster: "{{ myvmclname }}"
+      esxi_hostname: "esx02.fsimonetti.lan"
+      esxi_username: '{{ esxi_username }}'
+      esxi_password: '{{ esxi_password }}'
+      validate_certs: false
+      state: present
+  - name: Add ESXi license to host 2
+    delegate_to: localhost
+    vcenter_license:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      esxi_hostname: "esx02.fsimonetti.lan"
+      license: '{{ esxi_license }}'
+      validate_certs: false
+      state: present   

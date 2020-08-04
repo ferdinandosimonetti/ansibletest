@@ -36,11 +36,6 @@
       - python3-pexpect
    
 - hosts: manager
-  vars:
-    mydchostname: lookup('dig', {{ mydc }}, 'ptr') }}
-  tasks:
-  - name: "prova"
-    debug: msg="{{ mydchostname }}"
   roles:
   - role: thulium_drake.adjoin
     become: yes
@@ -56,11 +51,3 @@
           username: "{{ myaduser }}",
           password: "{{ myadpass }}"
         }
-
-- hosts: manager
-  roles:
-    - role: ansible-apache2
-    - role: ansible-mariadb-mysql
-      no_log: false
-    - role: ansible-phpipam
-
