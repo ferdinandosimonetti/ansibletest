@@ -66,4 +66,13 @@
       esxi_hostname: "esx02.fsimonetti.lan"
       license: '{{ esxi_license }}'
       validate_certs: false
-      state: present   
+      state: present
+  - name: Add vCenter license to VCSA
+    delegate_to: localhost
+    vcenter_license:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      license: '{{ vcenter_license }}'
+      validate_certs: false
+      state: present

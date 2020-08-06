@@ -1,0 +1,20 @@
+---
+- hosts: domaincontrollers
+  tasks:
+    - debug: var=ansible_date_time.date
+    - name: Checking for Critical Patches and producing a list of available items
+      win_updates:
+        category_names:
+          - CriticalUpdates
+          - SecurityUpdates
+          - UpdateRollups
+          - Application
+          - Tools
+          - ServicePacks
+          - Updates
+        state: installed
+        reboot: yes
+        log_path: C:\ansible.txt
+      register: contains
+    - debug:
+        var: contains

@@ -1,2 +1,11 @@
 [manager]
 mgr
+
+[domaincontrollers]
+dc
+
+[domaincontrollers:vars]
+ansible_user=administrator@FSIMONETTI.LAN
+ansible_connection=winrm
+ansible_winrm_server_cert_validation=ignore
+ansible_winrm_transport=kerberos
