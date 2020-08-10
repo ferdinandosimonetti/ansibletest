@@ -147,5 +147,29 @@
       datacenter: "{{ myvmdcname }}"
       datastore: 'iso-ds'
       path: /win/2016.iso
-  
-
+  - name: Clone a virtual machine from Windows template and customize
+    delegate_to: localhost
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      datacenter: "{{ myvmdcname }}"
+      cluster: "{{ myvmclname }}"
+      name: "testvm1"
+      folder: "/{{ myvmdcname }}/vm"
+      template: "Win2016-Template-Base"
+      networks:
+      - name: VM Network
+        ip: 192.168.101.10
+        netmask: 255.255.255.0
+        gateway: 192.168.101.2
+      customization:
+        autologon: no
+        hostname: "testvm1"
+        dns_servers:
+        - 192.168.101.104
+        domain: "{{ myaddomain }}"
+        password: Temporanea.1234
+      state: poweredon
+      wait_for_ip_address: true
