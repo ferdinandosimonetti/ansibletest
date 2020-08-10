@@ -76,3 +76,64 @@
       license: '{{ vcenter_license }}'
       validate_certs: false
       state: present
+  - name: Mount NFS datastores to host 1
+    delegate_to: localhost
+    vmware_host_datastore:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      validate_certs: false
+      nfs_server: '{{ mynfs }}'
+      nfs_path: '{{ item.path }}'
+      datastore_type: 'nfs'
+      datastore_name: '{{ item.name }}'
+      esxi_hostname: "esx01.fsimonetti.lan"
+      state: present
+      nfs_ro: no
+    loop:
+      - { 'name': 'iso-ds', 'path': '/mnt/cl0/v0/iso-ds'}
+      - { 'name': 'vm-ds', 'path': '/mnt/cl0/v1/vm-ds'}
+  - name: Mount NFS datastores to host 2
+    delegate_to: localhost
+    vmware_host_datastore:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      validate_certs: false
+      nfs_server: '{{ mynfs }}'
+      nfs_path: '{{ item.path }}'
+      datastore_type: 'nfs'
+      datastore_name: '{{ item.name }}'
+      esxi_hostname: "esx02.fsimonetti.lan"
+      state: present
+      nfs_ro: no
+    loop:
+      - { 'name': 'iso-ds', 'path': '/mnt/cl0/v0/iso-ds'}
+      - { 'name': 'vm-ds', 'path': '/mnt/cl0/v1/vm-ds'}
+  - name: Create directory structure for OS ISOs
+    delegate_to: localhost
+    vsphere_file:
+      host:     '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      validate_certs: false
+      datacenter: "{{ myvmdcname }}"
+      datastore: 'iso-ds'
+      path: '{{ item.dst }}'
+      state: directory
+    loop:
+      - { 'dst': '/win' }
+      - { 'dst': '/linux' }
+  - name: copy Windows 2012R2 ISO to datastore
+    delegate_to: localhost  
+    vsphere_copy:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      validate_certs: false
+      src: /iso/win/2012r2.iso
+      datacenter: "{{ myvmdcname }}"
+      datastore: 'iso-ds'
+      path: /win/2012r2.iso
+  
+

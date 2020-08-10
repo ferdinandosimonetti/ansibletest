@@ -9,6 +9,7 @@ vcenter_password: !vault |
           6564
 myvmdcname: "DC0"
 myvmclname: "CL0"
+mynfs: "iscsi.{{ myaddomain }}"
 esxi_username: "root"
 esxi_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
