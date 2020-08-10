@@ -110,7 +110,7 @@
     loop:
       - { 'name': 'iso-ds', 'path': '/mnt/cl0/v0/iso-ds'}
       - { 'name': 'vm-ds', 'path': '/mnt/cl0/v1/vm-ds'}
-  - name: Create directory structure for OS ISOs
+  - name: Create directory structure for OS ISOs and vm templates
     delegate_to: localhost
     vsphere_file:
       host:     '{{ vcenter_hostname }}'
@@ -118,12 +118,13 @@
       password: '{{ vcenter_password }}'
       validate_certs: false
       datacenter: "{{ myvmdcname }}"
-      datastore: 'iso-ds'
+      datastore: '{{ item.ds }}'
       path: '{{ item.dst }}'
       state: directory
     loop:
-      - { 'dst': '/win' }
-      - { 'dst': '/linux' }
+      - { 'ds': 'iso-ds', 'dst': '/win' }
+      - { 'ds': 'iso-ds', 'dst': '/linux' }
+      - { 'ds': 'vm-ds', 'dst': '/templates' }
   - name: copy Windows 2012R2 ISO to datastore
     delegate_to: localhost  
     vsphere_copy:
@@ -135,5 +136,16 @@
       datacenter: "{{ myvmdcname }}"
       datastore: 'iso-ds'
       path: /win/2012r2.iso
+  - name: copy Windows 2016 ISO to datastore
+    delegate_to: localhost  
+    vsphere_copy:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      validate_certs: false
+      src: /iso/win/2016.iso
+      datacenter: "{{ myvmdcname }}"
+      datastore: 'iso-ds'
+      path: /win/2016.iso
   
 
