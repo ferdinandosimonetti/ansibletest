@@ -72,10 +72,10 @@
     "vsphere-datastore": "vm-ds",
     "vsphere-folder": "templates",
     "vsphere-network": "VM Network",
-    "vsphere-password": "",
+    "vsphere-password": "{{env `VSPHEREPASSWORD`}}",
     "vsphere-server": "vcsa.fsimonetti.lan",
     "vsphere-user": "administrator@vsphere.local",
-    "winadmin-password": ""
+    "winadmin-password": "{{env `VSPHEREPASSWORD`}}"
   }
 }
 
