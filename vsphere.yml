@@ -158,18 +158,27 @@
       cluster: "{{ myvmclname }}"
       name: "testvm1"
       folder: "/{{ myvmdcname }}/vm"
-      template: "Win2016-Template-Base"
+      template: "w2016template"
       networks:
       - name: VM Network
         ip: 192.168.101.10
         netmask: 255.255.255.0
         gateway: 192.168.101.2
       customization:
-        autologon: no
-        hostname: "testvm1"
         dns_servers:
         - 192.168.101.104
+        dns_suffix:
+        - "{{ myaddomain }}"
         domain: "{{ myaddomain }}"
-        password: Temporanea.1234
+        # https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms912391(v=winembedded.11)?redirectedfrom=MSDN
+        timezone: 110
+        hwclockUTC: true
+        domainadmin: "administrator@{{ myaddomain }}"
+        domainadminpassword: "{{ vcenter_password }}"
+        fullname: "Ferdinando Simonetti"
+        joindomain: "{{ myaddomain }}"
+        orgname: "Ferdinando Simonetti"
+        password: "{{ vcenter_password }}"
       state: poweredon
       wait_for_ip_address: true
+      wait_for_customization: true

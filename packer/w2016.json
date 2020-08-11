@@ -18,7 +18,8 @@
         "./scripts/enable-rdp.cmd",
         "./scripts/enable-winrm.ps1",
         "./scripts/install-vm-tools.cmd",
-        "./scripts/set-temp.ps1"
+        "./scripts/set-temp.ps1",
+        "./scripts/ansibleremoting.ps1"
       ],
       "folder": "{{user `vsphere-folder`}}",
       "guest_os_type": "windows9Server64Guest",
@@ -51,10 +52,7 @@
   ],
   "provisioners": [
     {
-      "inline": [
-        "ipconfig"
-      ],
-      "type": "windows-shell"
+      "type": "windows-update"
     }
   ],
   "sensitive-variables": [
@@ -66,7 +64,7 @@
     "vm-cpu-num": "2",
     "vm-disk-size": "51200",
     "vm-mem-size": "1024",
-    "vm-name": "Win2016-Template-Base",
+    "vm-name": "w2016template",
     "vsphere-cluster": "CL0",
     "vsphere-datacenter": "DC0",
     "vsphere-datastore": "vm-ds",

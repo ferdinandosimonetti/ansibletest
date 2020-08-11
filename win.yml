@@ -1,7 +1,8 @@
 ---
 - hosts: domaincontrollers vms
   tasks:
-    - debug: var=ansible_date_time.date
+    - debug: 
+        var: ansible_date_time.date
     - name: Checking for Critical Patches and producing a list of available items
       win_updates:
         category_names:
