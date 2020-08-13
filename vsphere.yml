@@ -147,38 +147,49 @@
       datacenter: "{{ myvmdcname }}"
       datastore: 'iso-ds'
       path: /win/2016.iso
-  - name: Clone a virtual machine from Windows template and customize
-    delegate_to: localhost
-    vmware_guest:
-      hostname: "{{ vcenter_hostname }}"
-      username: "{{ vcenter_username }}"
-      password: "{{ vcenter_password }}"
-      validate_certs: no
+  - name: copy CentOS 8 ISO to datastore
+    delegate_to: localhost  
+    vsphere_copy:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      validate_certs: false
+      src: /iso/linux/centos8.iso
       datacenter: "{{ myvmdcname }}"
-      cluster: "{{ myvmclname }}"
-      name: "testvm1"
-      folder: "/{{ myvmdcname }}/vm"
-      template: "w2016template"
-      networks:
-      - name: VM Network
-        ip: 192.168.101.10
-        netmask: 255.255.255.0
-        gateway: 192.168.101.2
-      customization:
-        dns_servers:
-        - 192.168.101.104
-        dns_suffix:
-        - "{{ myaddomain }}"
-        domain: "{{ myaddomain }}"
-        # https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms912391(v=winembedded.11)?redirectedfrom=MSDN
-        timezone: 110
-        hwclockUTC: true
-        domainadmin: "administrator@{{ myaddomain }}"
-        domainadminpassword: "{{ vcenter_password }}"
-        fullname: "Ferdinando Simonetti"
-        joindomain: "{{ myaddomain }}"
-        orgname: "Ferdinando Simonetti"
-        password: "{{ vcenter_password }}"
-      state: poweredon
-      wait_for_ip_address: true
-      wait_for_customization: true
+      datastore: 'iso-ds'
+      path: /linux/centos8.iso
+#  - name: Clone a virtual machine from Windows template and customize
+#    delegate_to: localhost
+#    vmware_guest:
+#      hostname: "{{ vcenter_hostname }}"
+#      username: "{{ vcenter_username }}"
+#      password: "{{ vcenter_password }}"
+#      validate_certs: no
+#      datacenter: "{{ myvmdcname }}"
+#      cluster: "{{ myvmclname }}"
+#      name: "testvm1"
+#      folder: "/{{ myvmdcname }}/vm"
+#      template: "w2016template"
+#      networks:
+#      - name: VM Network
+#        ip: 192.168.101.10
+#        netmask: 255.255.255.0
+#        gateway: 192.168.101.2
+#      customization:
+#        dns_servers:
+#        - 192.168.101.104
+#        dns_suffix:
+#        - "{{ myaddomain }}"
+#        domain: "{{ myaddomain }}"
+#        # https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms912391(v=winembedded.11)?redirectedfrom=MSDN
+#        timezone: 110
+#        hwclockUTC: true
+#        domainadmin: "administrator@{{ myaddomain }}"
+#        domainadminpassword: "{{ vcenter_password }}"
+#        fullname: "Ferdinando Simonetti"
+#        joindomain: "{{ myaddomain }}"
+#        orgname: "Ferdinando Simonetti"
+#        password: "{{ vcenter_password }}"
+#      state: poweredon
+#      wait_for_ip_address: true
+#      wait_for_customization: true

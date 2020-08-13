@@ -8,11 +8,11 @@
         category_names:
           - CriticalUpdates
           - SecurityUpdates
-          - UpdateRollups
-          - Application
-          - Tools
-          - ServicePacks
-          - Updates
+#          - UpdateRollups
+#          - Application
+#          - Tools
+#          - ServicePacks
+#          - Updates
         state: installed
         reboot: yes
         log_path: C:\ansible.txt
