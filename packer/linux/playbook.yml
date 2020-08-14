@@ -31,8 +31,6 @@
     loop:
       - { "reg": "^PermitRootLogin", "lin": "PermitRootLogin no" }
       - { "reg": "^PubkeyAuthentication", "lin": "PubkeyAuthentication yes" }
-      - { "reg": "^PasswordAuthentication", "lin": "PasswordAuthentication no" }
-      - { "reg": "^PasswordAuthentication", "lin": "PasswordAuthentication no" }
       - { "reg": "AllowAgentForwarding", "lin": "AllowAgentForwarding yes" }
   - name: lock root password
     user:
