@@ -1,0 +1,8 @@
+- hosts: temporarytag.testvm2
+  become: yes
+  user: admbvtech
+  tasks:
+    - name: prova
+      file:
+        state: touch
+        path: /tmp/pippo2.txt

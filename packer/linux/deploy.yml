@@ -1,0 +1,153 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars_files:
+    - ./variables.yml
+  tasks:
+  - name: Clone a virtual machine from CentOS template and customize
+    delegate_to: localhost
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      datacenter: "{{ myvmdcname }}"
+      cluster: "{{ myvmclname }}"
+      # to be passed with --extra-vars
+      name: "{{ vmhostname }}"
+      folder: "/{{ myvmdcname }}/vm"
+      template: "centos8template"
+      networks:
+      - name: VM Network
+        # to be passed with --extra-vars
+        ip: "{{ vmipaddr }}"
+        netmask: 255.255.255.0
+        gateway: 192.168.101.2
+      customization:
+        dns_servers:
+        - 192.168.101.104
+        dns_suffix:
+        - "{{ myaddomain }}"
+        domain: "{{ myaddomain }}"
+#        # For Windows VMs        
+#        # https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms912391(v=winembedded.11)?redirectedfrom=MSDN
+#        timezone: 110
+        timezone: "{{ mytimezone }}"
+        hwclockUTC: true
+      state: poweredon
+      wait_for_ip_address: true
+      wait_for_customization: true
+
+  - name: Create a category
+    vmware_category:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      category_name: tempcategory
+      category_description: Temporary Category
+      category_cardinality: 'multiple'
+      state: present
+      validate_certs: no
+    delegate_to: localhost
+    register: results
+  
+  - name: create temporary tag
+    delegate_to: localhost
+    vmware_tag:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      validate_certs: no
+      tag_name: "temporarytag.{{ vmhostname }}"
+      tag_description: "tag for {{ vmhostname }}"
+      category_id: "{{ results.category_results.category_id }}"
+      state: present
+  
+  - name: Add new tag to the new vm
+    vmware_tag_manager:
+      hostname: '{{ vcenter_hostname }}'
+      username: '{{ vcenter_username }}'
+      password: '{{ vcenter_password }}'
+      validate_certs: no
+      tag_names: 
+      - "temporarytag.{{ vmhostname }}"
+      object_name: "{{ vmhostname }}"
+      object_type: VirtualMachine
+      state: add
+    delegate_to: localhost
+
+  - name: record VM creation date/time
+    shell: date +%Y%m%d%H%M
+    register: creationdate
+  
+  - name: add attribute CREATIONDATE to new VM
+    vmware_guest_custom_attributes:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: no
+      name: "{{ vmhostname }}"
+      state: present
+      attributes:
+        - name: CREATIONDATE
+          value: "{{ creationdate.stdout }}"
+    delegate_to: localhost
+  
+- hosts: "temporarytag.{{ vmhostname }}"
+  become: yes
+  vars_files:
+    - ./variables.yml
+  user: admbvtech
+  tasks:
+    - name: install packages needed for domain join
+      package:
+        state: present
+        name:
+          - realmd
+          - sssd 
+          - oddjob
+          - oddjob-mkhomedir
+          - adcli
+          - samba-common
+          - samba-common-tools
+          - krb5-workstation 
+          - authselect-compat
+      notify:
+        - restart realmd 
+
+    - name: Install pexpect using pip
+      pip:
+        name: pexpect
+    
+    - name: join vm to ad
+      expect:
+        command: /bin/bash -c "/usr/sbin/realm join --user=joiner@{{ myadrealm }} {{ myaddomain }}"
+        responses:
+          Password for *: "{{ myadpass }}"
+    
+    - name: add default_domain_suffix to sssd.conf
+      lineinfile:
+        dest: /etc/sssd/sssd.conf
+        line: 'default_domain_suffix = {{ myaddomain }}'
+        insertafter: '^\[sssd\]'
+      notify:
+        - restart sssd
+    
+    - name: add linuxadmins group to logon
+      shell: "/usr/sbin/realm permit -g linuxadmins@{{ myaddomain }}"
+    
+    - name: add linuxadmins to sudoers
+      lineinfile:
+        dest: /etc/sudoers
+        line: '%linuxadmins@{{ myaddomain }} ALL=(ALL) NOPASSWD: ALL'
+        insertafter: '^%wheel'
+  
+  handlers:
+    - name: restart sssd
+      service:
+        name: sssd
+        state: restarted
+    - name: restart realmd
+      service:
+        name: realmd
+        state: restarted

@@ -1,5 +1,5 @@
 ---
-- hosts: domaincontrollers vms
+- hosts: domaincontrollers
   tasks:
     - debug: 
         var: ansible_date_time.date
@@ -19,3 +19,29 @@
       register: contains
     - debug:
         var: contains
+    - name: create OU for Service Accounts
+      delegate_to: localhost
+      ldap_entry:
+        dn: ou=serviceaccounts,dc=fsimonetti,dc=lan
+        objectClass: organizationalUnit
+        bind_dn: "cn=Administrator,cn=Users,dc=fsimonetti,dc=lan"
+        bind_pw: "Savignone.2015"
+        server_uri: "ldap://dc.fsimonetti.lan/"
+        validate_certs: no
+    - name: create Unix admins group
+      win_domain_group:
+        name: linuxadmins
+        description: "Linux admins"
+        scope: global
+        protect: yes
+    - name: create join user
+      win_domain_user:
+        name: joiner
+        password: Savignone.2015
+        state: present
+        user_cannot_change_password: yes
+        description: "user account for domain join of Linux VMs"
+        path: ou=serviceaccounts,dc=fsimonetti,dc=lan
+        groups:
+          - Domain Admins
+          - linuxadmins

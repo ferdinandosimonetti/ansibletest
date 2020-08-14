@@ -63,8 +63,7 @@
       "playbook_file": "./playbook.yml",
       "extra_arguments": [ 
         "--vault-password-file", 
-        "~/.password", 
-        "--ask-pass" 
+        "~/.password" 
         ]
     }
   ]
