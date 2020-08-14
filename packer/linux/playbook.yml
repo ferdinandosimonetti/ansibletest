@@ -18,7 +18,10 @@
   - name: add authkey
     authorized_key:
       user: "admbvtech"
-      key: "{{ lookup('file', './id_rsa.pub') }}"
+      key: "{{ lookup('file', '{{ item.keyfile }}') }}"
+    loop:
+      - { "keyfile": "./id_rsa.pub" }
+      - { "keyfile": "./id_ed25519.pub" }
   - name: no root login via SSH
     lineinfile:
       dest: "/etc/ssh/sshd_config"
